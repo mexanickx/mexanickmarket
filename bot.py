@@ -4,6 +4,20 @@
 Mexanick Market
 
 """
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"OK")
+
+def run_healthcheck_server():
+    server = HTTPServer(("0.0.0.0", 8000), HealthHandler)
+    server.serve_forever()
+
+threading.Thread(target=run_healthcheck_server, daemon=True).start()
 import asyncio
 from datetime import datetime
 import pytz
@@ -2049,4 +2063,5 @@ async def main():
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
 if __name__ == "__main__":
+
     asyncio.run(main())
